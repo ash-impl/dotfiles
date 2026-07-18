@@ -1,0 +1,5 @@
+font-family = JetBrainsMono Nerd Font
+font-size = 12
+theme = TokyoNight
+
+shell-integration = zsh
