@@ -1,5 +1,10 @@
 config_version = 14
 
+[theme]
+mode = "dark"          # dark | light | auto
+shell_mode = "follow"  # noctalia follows mode, so everything stays dark
+pure_black_dark = false
+
 [lockscreen_widgets]
 enabled = false
 schema_version = 2
