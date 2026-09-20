@@ -8,6 +8,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      inputs.noctalia.nixosModules.default
     ];
 
   # Bootloader.
@@ -115,6 +116,11 @@
       exec zellij
     fi
   '';
+
+  programs.noctalia = {
+    enable = true;
+    recommendedServices.enable = true;
+  };
 
   programs.dconf.profiles.user.databases = [
     {

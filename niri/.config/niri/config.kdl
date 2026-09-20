@@ -267,8 +267,8 @@ layout {
 // which may be more convenient to use.
 // See the binds section below for more spawn examples.
 
-// This line starts waybar, a commonly used bar for Wayland compositors.
-spawn-at-startup "waybar"
+// Start noctalia
+spawn-at-startup "noctalia"
 
 // Set the desktop background.
 spawn-sh-at-startup "swaybg -i $HOME/dotfiles/wallpapers/leaves.jpg"
