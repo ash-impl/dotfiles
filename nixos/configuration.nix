@@ -74,9 +74,11 @@
   users.users."ashimpl" = {
     isNormalUser = true;
     description = "ashimpl";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "plugdev" ];
     packages = with pkgs; [];
   };
+  
+  users.groups.plugdev = {};
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -108,9 +110,11 @@
     enableZshIntegration = true;
   };
 
-  programs.atuin = {
-    enable = true;
-  };
+  programs.zsh.interactiveShellInit = ''
+    if [[ -z "$ZELLIJ" && -n "$PS1" ]]; then
+      exec zellij
+    fi
+  '';
 
   programs.dconf.profiles.user.databases = [
     {
@@ -130,18 +134,23 @@
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     # General tools
+    atuin
+    bluetui
     firefox
     google-chrome
     inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
-    stow
-    nautilus
     gnome-themes-extra
-    papirus-icon-theme
     greetd
-    tuigreet
+    gtk3
+    libusb1
+    nautilus
+    papirus-icon-theme
     pavucontrol
-    bluetui
     sbctl
+    starship
+    stow
+    tuigreet
+    webkitgtk_4_1
 
     # General Dev tools
     btop
@@ -256,6 +265,19 @@
     alsa.support32Bit = true;
   };
 
+  # ZSA voyager flashing requirements
+  services.udev.extraRules = ''
+  # ZSA keyboards
+  KERNEL=="hidraw*", ATTRS{idVendor}=="16c0", MODE="0664", GROUP="plugdev"
+  KERNEL=="hidraw*", ATTRS{idVendor}=="3297", MODE="0664", GROUP="plugdev"
+
+  SUBSYSTEM=="usb", ATTR{idVendor}=="3297", GROUP="plugdev"
+
+  # Voyager
+  SUBSYSTEMS=="usb", ATTRS{idVendor}=="3297", MODE:="0666", SYMLINK+="ignition_dfu", GROUP="plugdev"
+  SUBSYSTEMS=="usb", ATTRS{idVendor}=="3297", MODE="0666", GROUP="plugdev"
+'';
+
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
@@ -269,5 +291,4 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "26.05"; # Did you read the comment?
-
 }
