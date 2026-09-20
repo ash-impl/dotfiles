@@ -180,6 +180,7 @@
     waybar
     fuzzel
     mako
+    swaybg
     swayidle
     swaylock
     xwayland-satellite
