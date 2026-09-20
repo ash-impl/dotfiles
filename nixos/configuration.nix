@@ -108,6 +108,10 @@
     enableZshIntegration = true;
   };
 
+  programs.atuin = {
+    enable = true;
+  };
+
   programs.dconf.profiles.user.databases = [
     {
       settings = {
@@ -192,6 +196,11 @@
     rust-analyzer
     rustfmt
     clippy
+
+    # Language servers
+    nixd
+    typescript-language-server
+    vscode-langservers-extracted
   ];
 
   environment.sessionVariables = {
