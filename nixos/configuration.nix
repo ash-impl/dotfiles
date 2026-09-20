@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, inputs, lib, ... }:
 
 {
   imports =
@@ -11,8 +11,14 @@
     ];
 
   # Bootloader.
-  boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.enable = lib.mkForce false;
+  boot.lanzaboote = {
+    enable = true;
+    pkiBundle = "/var/lib/sbctl";
+  };
+
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.systemd-boot.configurationLimit = 2;
 
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -42,6 +48,22 @@
     LC_TIME = "en_US.UTF-8";
   };
 
+  
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        command = "${pkgs.tuigreet}/bin/tuigreet --cmd niri-session";
+        user = "greeter";
+      };
+    };
+  };
+
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+  };
+
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
@@ -66,6 +88,8 @@
 
   programs.niri.enable = true;
 
+  programs.dconf.enable = true;
+
   # Automatically load project dev envs.
   programs.direnv = {
     enable = true;
@@ -77,8 +101,24 @@
     enableCompletion = true;
     autosuggestions.enable = true;
     syntaxHighlighting.enable = true;
-
   };
+
+  programs.zoxide = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+
+  programs.dconf.profiles.user.databases = [
+    {
+      settings = {
+        "org/gnome/desktop/interface" = {
+          color-scheme = "prefer-dark";
+          gtk-theme = "Adwaita-dark";
+          icon-theme = "Papirus-Dark";
+        };
+      };
+    }
+  ];
 
   users.users.ashimpl.shell = pkgs.zsh;
   # List packages installed in system profile. To search, run:
@@ -90,26 +130,44 @@
     google-chrome
     inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
     stow
+    nautilus
+    gnome-themes-extra
+    papirus-icon-theme
+    greetd
+    tuigreet
+    pavucontrol
+    bluetui
+    sbctl
 
     # General Dev tools
-    git
-    jujutsu
-    curl
-    wget
-    jq
-    ripgrep
-    fd
-    unzip
-    zip
-    tree
-    just
-    zellij
-    eza
-    fzf
     btop
     bat
-    zsh
+    clang
+    coreutils
+    curl
+    emacs-pgtk
+    eza
+    fd
+    fzf
+    gcc
+    git
+    gnumake
+    jq
+    jujutsu
+    just
+    opencode
+    pandoc
+    pkg-config
+    ripgrep
+    shellcheck
+    sqlite
+    tree
+    unzip
+    wget
+    zellij
+    zip
     zoxide
+    zsh
   
     # Editors and terminal
     ghostty
@@ -124,10 +182,42 @@
     wl-clipboard
     grim
     slurp
+
+    # Node
+    nodejs
+
+    # Rust
+    rustc
+    cargo
+    rust-analyzer
+    rustfmt
+    clippy
   ];
+
+  environment.sessionVariables = {
+    GTK_THEME = "Adwaita-dark";
+    PATH = [ "$HOME/.config/emacs/bin" ];
+  };
+
+  xdg.portal = {
+    enable = true;
+
+    extraPortals = with pkgs; [ 
+      xdg-desktop-portal-gtk
+      xdg-desktop-portal-gnome
+    ];
+    config.niri = {
+      default = [ "gnome" "gtk" ];
+      # Force the file chooser to use the GTK portal backend
+      "org.freedesktop.impl.portal.FileChooser" = [ "gtk" ];
+    };
+  };
+
 
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
+    nerd-fonts.symbols-only
+    font-awesome
   ];
 
   # Some programs need SUID wrappers, can be configured further or are

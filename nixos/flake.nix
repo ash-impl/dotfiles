@@ -8,9 +8,14 @@
       url = "github:youwen5/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    lanzaboote = {
+      url = "github:nix-community/lanzaboote/v1.1.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = inputs@{ self, nixpkgs, ...}: {
+  outputs = inputs@{ self, nixpkgs, lanzaboote, ...}: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = {
@@ -19,6 +24,7 @@
 
       modules = [
         ./configuration.nix
+        lanzaboote.nixosModules.lanzaboote
       ];
     };
   };
